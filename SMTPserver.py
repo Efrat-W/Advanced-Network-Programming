@@ -2,15 +2,19 @@ import socket
 import SMTP_protocol
 import base64
 
-IP = '0.0.0.0'
+IP = '127.0.0.1'
 SOCKET_TIMEOUT = 1
 SERVER_NAME = "test_SMTP_server.com"
 
 user_names = {"shooki": "abcd1234", "barbie": "helloken"}
+curr_user = ""
 
 # Fill in the missing code
 def create_initial_response():
-    pass
+    return "{} {}\nWelcome to our SMTP server!\r\n".format(SMTP_protocol.SMTP_SERVICE_READY, SERVER_NAME).encode()
+
+def error_response(err="An unkown error has occurred :/"):
+    return("{} {}".format(SMTP_protocol.COMMAND_SYNTAX_ERROR, err)).encode()
 
 
 # Example of how a server function should look like
@@ -19,13 +23,27 @@ def create_EHLO_response(client_message):
         If yes - returns proper Hello response
         Else - returns proper protocol error code"""
     if not client_message.startswith("EHLO"):
-        return("{}".format(SMTP_protocol.COMMAND_SYNTAX_ERROR)).encode()
+        return error_response()
     client_name = client_message.split()[1]
     return "{}-{} Hello {}\r\n".format(SMTP_protocol.REQUESTED_ACTION_COMPLETED, SERVER_NAME, client_name).encode()
 
 
-# More fucntions should follow, in the form of create_EHLO_response, for every server response
-# ...
+def create_AUTH_LOGIN_response(client_message):
+    if not client_message.startswith("AUTH LOGIN"):
+        return error_response()
+    return "{} {}\r\n".format(SMTP_protocol.AUTH_INPUT, base64.b64encode("Username:".encode()).decode()).encode()
+
+def create_AUTH_LOGIN_USER_response(client_message):
+    global curr_user
+    if not client_message in user_names.keys():
+        return error_response("Unrecognized user")
+    curr_user = client_message
+    return "{} {}\r\n".format(SMTP_protocol.AUTH_INPUT, base64.b64encode("Password:".encode()).decode()).encode()
+
+def create_AUTH_LOGIN_PASSWRD_response(client_message):
+    if not curr_user or client_message == user_names[curr_user]:
+        return error_response("Incorrect password")
+    return "{} Authentication succeeded\r\n".format(SMTP_protocol.AUTH_SUCCESS).encode()
 
 
 def handle_SMTP_client(client_socket):
@@ -42,11 +60,35 @@ def handle_SMTP_client(client_socket):
         print("Error client EHLO")
         return
 
-    # 3 receive and send AUTH Login
+    # 3 receive and send AUTH Login (recv AUTH LOGIN, send encrypted username request)
+    message = client_socket.recv(1024).decode()
+    print(message)
+    response = create_AUTH_LOGIN_response(message)
+    client_socket.send(response)
+    if not response.decode().startswith(SMTP_protocol.AUTH_INPUT):
+        print(response.decode()[3:])
+        return
+    
 
     # 4 receive and send USER message
-
+    message = client_socket.recv(1024).decode()
+    dec_message = base64.b64decode(message).decode()
+    print('{} (decoded: {})'.format(message, dec_message))
+    response = create_AUTH_LOGIN_USER_response(dec_message)
+    client_socket.send(response)
+    if not response.decode().startswith(SMTP_protocol.AUTH_INPUT):
+        print(response.decode()[3:])
+        return
+    
     # 5 password
+    message = client_socket.recv(1024).decode()
+    dec_message = base64.b64decode(message).decode()
+    print('{} (decoded: {})'.format(message, dec_message))
+    response = create_AUTH_LOGIN_PASSWRD_response(dec_message)
+    client_socket.send(response)
+    if not response.decode().startswith(SMTP_protocol.AUTH_SUCCESS):
+        print(response.decode()[3:])
+        return
 
     # 6 mail from
 
