@@ -43,7 +43,7 @@ def create_DATA():
 
 def create_MESSAGE_CONTENT(content = ""):
     global EMAIL_TEXT
-    EMAIL_TEXT += "\n" + content + ".\r\n"
+    EMAIL_TEXT += "\n" + content
     print(EMAIL_TEXT)
     return EMAIL_TEXT.encode()
 
@@ -134,7 +134,8 @@ Subject: SMTP demo
     The SMTP demo assignment is complete. Hopefully it's not too messy.
 
     Thanks for reviewing.
-    """
+
+    """ + ".\r\n"
     for i in range(0, len(content), MAX_MSG_LENGTH):
         print(content[i:i+MAX_MSG_LENGTH])
         my_socket.send(create_MESSAGE_CONTENT(content[i:i+MAX_MSG_LENGTH]))

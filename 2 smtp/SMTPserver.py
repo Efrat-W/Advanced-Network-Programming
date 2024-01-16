@@ -158,8 +158,10 @@ def handle_SMTP_client(client_socket):
     
     messages = []
     while True:
-        #print("packets recv so far: " + str(len(messages)))
-        messages += [client_socket.recv(MAX_MSG_LENGTH).decode()]
+        print("\npackets recv so far: " + str(len(messages)))
+        message = client_socket.recv(MAX_MSG_LENGTH).decode()
+        print(message)
+        messages += [message]
         print(messages[-1])
         if messages[-1].endswith('.\r\n'):
             break
