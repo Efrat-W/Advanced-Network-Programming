@@ -1,15 +1,6 @@
 from scapy.all import IP, UDP, DNS, DNSQR, sr1, DNSRR
 
 DEFAULT_DNS = "8.8.8.8"
-# auxiliary function to recognize type of request by input
-def is_IP(req):
-    if not req:
-        return False
-    for i in req.split('.'):
-        if not i.isdigit():
-            return False
-    return True
-
 
 def dig(domain, q_type="CAA", dns=DEFAULT_DNS):
     # create DNS query packet
