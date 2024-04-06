@@ -4,7 +4,6 @@ from dnsmap import list2
 #from time import sleep
 
 DEFAULT_DNS = "8.8.8.8"
-
 TYPE_A = 1 # A (1) for IPv4
 
 def extract_prefixes():
@@ -18,7 +17,6 @@ def extract_prefixes():
     # dnsmap.h list, manually exported into dnsmap.py
     for prefix in list2:
         yield prefix
-
 
 
 def dnsmap(domain, q_type=TYPE_A, dns=DEFAULT_DNS):
@@ -41,6 +39,3 @@ def dnsmap(domain, q_type=TYPE_A, dns=DEFAULT_DNS):
                 if dnsrr.type == TYPE_A: # for IPv4
                     print(f"IP address #{i+1}: {dnsrr.rdata}")
                     
-            
-
-dnsmap("jct.ac.il")
