@@ -18,10 +18,9 @@ def dig(domain, q_type="CAA", dns=DEFAULT_DNS):
     dnsrr_count = res[DNS].ancount
     for i in range(dnsrr_count):
         data = res[DNSRR][i].rdata
-        if q_type=='CAA':
-            data = data.decode()[cutoff:]
-            data = data.split(';')  # in case of irrelevant added info
-            addr_res.append(data[0])
+        data = data.decode()[cutoff:]
+        data = data.split(';')  # in case of irrelevant added info
+        addr_res.append(data[0])
     #return addr_res
             
     # print results
