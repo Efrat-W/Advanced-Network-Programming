@@ -11,7 +11,7 @@ def dig(domain, q_type="CAA", dns=DEFAULT_DNS):
             verbose=0
             )
     
-    print(res.show())
+    #print(res.show())
 
     cutoff = len('\x00\x05issue')
     addr_res = []
@@ -22,9 +22,10 @@ def dig(domain, q_type="CAA", dns=DEFAULT_DNS):
             data = data.decode()[cutoff:]
             data = data.split(';')  # in case of irrelevant added info
             addr_res.append(data[0])
-    return addr_res
+    #return addr_res
+            
+    # print results
+    print("CAA records:")
+    for rec in addr_res:
+        print(rec)
 
-records = dig("leetcode.com")
-print("CAA records:")
-for rec in records:
-    print(rec)
