@@ -2,6 +2,12 @@ from scapy.all import IP, UDP, DNS, DNSQR, sr1, DNSRR
 
 DEFAULT_DNS = "8.8.8.8"
 
+def printCAA(records):     
+    # print results
+    print("CAA records:")
+    for rec in records:
+        print(rec)
+
 def dig(domain, q_type="CAA", dns=DEFAULT_DNS):
     # create DNS query packet
     res = sr1(
@@ -21,10 +27,10 @@ def dig(domain, q_type="CAA", dns=DEFAULT_DNS):
         data = data.decode()[cutoff:]
         data = data.split(';')  # in case of irrelevant added info
         addr_res.append(data[0])
-    #return addr_res
-            
-    # print results
-    print("CAA records:")
-    for rec in addr_res:
-        print(rec)
+    
+    #printCAA(addr_res)
+    
+    return addr_res
+
+
 
