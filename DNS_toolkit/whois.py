@@ -1,16 +1,22 @@
 from scapy.all import sniff, TCP, raw
 import socket
 
-def whoisQueryReq(domain):
+def whoisQueryReq(domain: str):
+    print("Processing, might take a few seconds...")
+    
     iana = "whois.iana.org"
     PORT = 43 # TCP port on which WHOIS listens
-    TLD = '.' + domain.split('.')[-1]
+    TLD = '.' + domain.split('.')[-1].lower()
     whois_server = ''
     name_servers = []
 
 
     def TLDfilter(p):
-        return TCP in p and TLD in str(p[TCP].payload)
+        return TCP in p and TLD in str(p[TCP].payload).lower()
+    
+    def DomainFilter(p):
+        return TCP in p and domain in str(p[TCP].payload).lower()
+    
 
     # Phase 1: Find TLD specific whois server
     try:
@@ -47,6 +53,10 @@ def whoisQueryReq(domain):
         #print("closing sock 1")
         sock.close()
 
+    # if there was no result in phase 1
+    if not whois_server:
+        whois_server = domain
+
     # Phase 2: Return all data from the whois requested domain
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -54,7 +64,7 @@ def whoisQueryReq(domain):
         sock.send((domain + "\r\n").encode())
 
         # receive response packets
-        packets = sniff(timeout=10, filter="tcp port 43", lfilter=TLDfilter)
+        packets = sniff(timeout=10, filter="tcp port 43", lfilter=DomainFilter)
         #print(f"num of packets sniffed: {len(packets)} PHASE-2")
 
         for p in packets:
@@ -69,4 +79,4 @@ def whoisQueryReq(domain):
         sock.close()
 
 
-whoisQueryReq("leetcode.com")
+#whoisQueryReq("leetcode.com")

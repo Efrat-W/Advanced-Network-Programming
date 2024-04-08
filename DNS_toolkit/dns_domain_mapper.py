@@ -52,6 +52,7 @@ def getIP(domain, dns=DEFAULT_DNS, q_type=TYPE_A):
 
 
 def printDNSmap(hashed_domains):
+    print("\nDNS Network Mapper")
     for domain, ip_list in hashed_domains:
         print(domain)
         for i, ip in enumerate(ip_list):
@@ -88,4 +89,3 @@ def dnsmap(domain, q_type=TYPE_A, dns=DEFAULT_DNS):
 
 
 
-printDNSmap(dnsmap("jct.ac.il", q_type="SOA"))
